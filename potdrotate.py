@@ -74,7 +74,7 @@ def main(*args):
 	commons = pywikibot.Site(code="commons", fam="commons")
 	site = pywikibot.Site(code="nl", fam="wikipedia")
 
-	editSummary = 'Robot: Bijwerken afbeelding van de dag'
+	editSummary = 'Robot: Bijwerken afbeelding van de dag (zie [[Gebruiker:Frank Geerlings/Toelichting/Bijwerken afbeelding van de dag|toelichting]])'
 
 	# Deze maand vanaf morgen
 	today = date.today()
