@@ -1,5 +1,6 @@
+# vim: set fileencoding=utf-8 :
+
 import pywikibot, mwparserfromhell
-from pywikibot import pagegenerators
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 from pprint import pprint
@@ -78,7 +79,7 @@ def main(*args):
 
 	# Deze maand vanaf morgen
 	today = date.today()
-	# 
+
 	metbeschrijvingen = map(lambda x: (x, x.day, potdArtikel(commons, x)), dagen(today))
 	bron = [a + (None,) if a[2] == None else a + (potdBestandsnaam(commons, a[0]),) for a in metbeschrijvingen if a[2]]
 
@@ -102,8 +103,38 @@ def main(*args):
 		filePage.text = fileText
 		filePage.save(editSummary, minor=False)
 
+def simplifyWikisyntax(text):
+	"""
+	>>> simplifyWikisyntax(u'Mid-sentence [[:nl:Link|links]] work')
+	u'Mid-sentence [[Link|links]] work'
+
+	>>> simplifyWikisyntax(u'[[:nl:Self-contained link|Self-contained link]]')
+	u'[[Self-contained link]]'
+
+	>>> simplifyWikisyntax(u'[[Category:Picture of the day]]')
+	u'[[Category:Picture of the day]]'
+
+	Just so you'll see the next test is correct:
+
+	>>> u'–'
+	u'\\xe2\\x80\\x93'
+
+	Unicode characters get replaced properly:
+
+	>>> simplifyWikisyntax(u'Article about [[:nl:–|–]] (em-dash)')
+	u'Article about [[\\xe2\\x80\\x93]] (em-dash)'
+
+	>>> simplifyWikisyntax(u'')
+	u''
+	"""
+
+	nointerwiki = re.sub(ur'\[\[:nl:(.*?)\]\]', u"[[\\1]]", unicode(text))
+	nodoubles = re.sub(ur'\[\[(.*?)\|\1\]\]', u"[[\\1]]", nointerwiki)
+
+	return unicode(nodoubles)
+
 def D(datum, beschrijving):
-	return u"{{Potd description|1=%s|2=nl|3=%04d|4=%02d|5=%02d}}\n  " % (beschrijving, datum.year, datum.month, datum.day)
+	return u"{{Potd description|1=%s|2=nl|3=%04d|4=%02d|5=%02d}}\n  " % (simplifyWikisyntax(beschrijving), datum.year, datum.month, datum.day)
 
 def getD(bron, page):
 	wikicode = mwparserfromhell.parse(page.text)
