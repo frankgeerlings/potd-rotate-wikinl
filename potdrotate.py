@@ -9,9 +9,9 @@ import re
 def dagen(today):
 	# last_day = today.replace(day = calendar.monthrange(today.year, today.month)[1])
 
-	# Volgende maand tot 'vandaag'
+	# Volgende maand tot 'gisteren'
 	d1 = today + relativedelta(days=+1)
-	d2 = today + relativedelta(days=-1, months=+1)
+	d2 = today + relativedelta(days=-2, months=+1)
 
 	delta = d2 - d1
 
