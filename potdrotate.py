@@ -7,6 +7,10 @@ from pprint import pprint
 import re
 
 def dagen(today):
+	"""
+	>>> next(dagen(date(2016, 10, 20)))
+	datetime.date(2016, 10, 22)
+	"""
 	# last_day = today.replace(day = calendar.monthrange(today.year, today.month)[1])
 
 	# Volgende maand tot 'gisteren'
