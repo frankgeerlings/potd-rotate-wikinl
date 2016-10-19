@@ -8,8 +8,21 @@ import re
 
 def dagen(today):
 	"""
+	The first POTD that will be copied over is two days from now
+
 	>>> next(dagen(date(2016, 10, 20)))
 	datetime.date(2016, 10, 22)
+
+	The POTD furthest in the future that is to be copied over is as follows:
+
+	>>> [i for i in dagen(date(2016, 10, 20))][-1]
+	datetime.date(2016, 11, 18)
+
+	The number of days in January exceeds the number of days in February by a few,
+	this is a test to make sure that doesn't cause a conflict:
+
+	>>> [i for i in dagen(date(2016, 1, 31))][-1]
+	datetime.date(2016, 2, 27)
 	"""
 	# last_day = today.replace(day = calendar.monthrange(today.year, today.month)[1])
 
