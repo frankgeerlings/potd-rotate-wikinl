@@ -8,10 +8,10 @@ import re
 
 def dagen(today):
 	"""
-	The first POTD that will be copied over is two days from now
+	The first POTD that will be copied over is today's picture.
 
 	>>> next(dagen(date(2016, 10, 20)))
-	datetime.date(2016, 10, 22)
+	datetime.date(2016, 10, 20)
 
 	The POTD furthest in the future that is to be copied over is as follows:
 
@@ -24,10 +24,7 @@ def dagen(today):
 	>>> [i for i in dagen(date(2016, 1, 31))][-1]
 	datetime.date(2016, 2, 27)
 	"""
-	# last_day = today.replace(day = calendar.monthrange(today.year, today.month)[1])
-
-	# Volgende maand tot 'gisteren'
-	d1 = today + relativedelta(days=+2)
+	d1 = today
 	d2 = today + relativedelta(days=-2, months=+1)
 
 	delta = d2 - d1
