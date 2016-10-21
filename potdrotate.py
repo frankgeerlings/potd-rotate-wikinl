@@ -103,7 +103,7 @@ def main(*args):
 
 	descriptionChanged = descriptionPage.text != descriptionText
 
-	filePage = pywikibot.Page(site, 'Sjabloon:Hoofdpagina - afbeelding van de dag')
+	filePage = pywikibot.Page(site, 'Sjabloon:Hoofdpagina - afbeelding van de dag/data')
 	fileText = getFiletext(bron, filePage)
 	# pywikibot.showDiff(filePage.text, fileText)
 
