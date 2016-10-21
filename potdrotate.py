@@ -97,7 +97,7 @@ def main(*args):
 	metbeschrijvingen = map(lambda x: (x, x.day, potdArtikel(commons, x)), dagen(today))
 	bron = [a + (None,) if a[2] == None else a + (potdBestandsnaam(commons, a[0]),) for a in metbeschrijvingen if a[2]]
 
-	descriptionPage = pywikibot.Page(site, 'Sjabloon:Hoofdpagina - afbeelding van de dag - onderschrift')
+	descriptionPage = pywikibot.Page(site, 'Sjabloon:Hoofdpagina - afbeelding van de dag - onderschrift/data')
 	descriptionText = getD(bron, descriptionPage)
 	# pywikibot.showDiff(descriptionPage.text, descriptionText)
 
