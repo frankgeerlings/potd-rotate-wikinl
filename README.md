@@ -6,5 +6,5 @@ The script fetches all descriptions starting tomorrow up to and including the la
 
 Any user can run the script at any time. The script is currently scheduled to run every 15 minutes by a bot named [Geerlings' robot][frankrobot].
 
-[frankrobot]: https://nl.wikipedia.org/iwki/Gebruiker:Geerlings%27_robot
+[frankrobot]: https://nl.wikipedia.org/wiki/Gebruiker:Geerlings%27_robot
 [potd]: https://commons.wikimedia.org/wiki/Commons:Picture_of_the_day
