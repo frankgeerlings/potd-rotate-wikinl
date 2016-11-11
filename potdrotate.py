@@ -4,6 +4,8 @@ import pywikibot, mwparserfromhell
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 from pprint import pprint
+from itertools import groupby
+from operator import itemgetter
 import re
 
 def dagen(today):
@@ -160,6 +162,36 @@ def getD(bron, page):
 	newText = unicode(wikicode)
 
 	return newText
+
+def dateRangeGroups(data):
+	"""
+	>>> dateRangeGroups([date(2016, 11, 11), date(2016, 11, 12), date(2016, 11, 14)])
+	[(datetime.date(2016, 11, 11), datetime.date(2016, 11, 12)), (datetime.date(2016, 11, 14), datetime.date(2016, 11, 14))]
+	"""
+	ranges = []
+	for k, g in groupby(enumerate(data), lambda (i,x):x+relativedelta(days=-i)):
+		group = map(itemgetter(1), g)
+		ranges.append((group[0], group[-1]))
+
+	return ranges
+
+def mapFormatterToRangeGroups(data, formatter):
+	"""
+	>>> mapFormatterToRangeGroups([(date(2016, 11, 11), date(2016, 11, 12)), (date(2016, 11, 14), date(2016, 11, 14))], lambda i: i.strftime('%d %b'))
+	[('11 Nov', '12 Nov'), ('14 Nov', '14 Nov')]
+	"""
+	return [(formatter(i), formatter(j)) for (i, j) in data]
+
+def combineRanges(data, combiner):
+	"""
+	>>> [i for i in combineRanges([('11 Nov', '12 Nov'), ('14 Nov', '14 Nov')], lambda x, y: "%s-%s" % (x, y))]
+	['11 Nov-12 Nov', '14 Nov']
+	"""
+	for i, j in data:
+		if i == j:
+			yield i
+		else:
+			yield combiner(i, j)
 
 def getFiletext(bron, filePage):
 	wikicode = mwparserfromhell.parse(filePage.text)
