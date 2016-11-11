@@ -93,7 +93,6 @@ def main(*args):
 
 	editSummary = 'Robot: Bijwerken afbeelding van de dag (%s, zie [[Gebruiker:Frank Geerlings/Toelichting/Bijwerken afbeelding van de dag|toelichting]])'
 
-	# Deze maand vanaf morgen
 	today = date.today()
 
 	metbeschrijvingen = map(lambda x: (x, x.day, potdArtikel(commons, x)), dagen(today))
@@ -118,6 +117,13 @@ def main(*args):
 
 		filePage.text = fileText
 		filePage.save(editSummary, minor=False)
+
+	if today in updatedDays:
+		refreshHomepage(site)
+
+def refreshHomepage(site):
+	page = pywikibot.Page(site, 'Hoofdpagina')
+	site.purgepages([page])
 
 def simplifyWikisyntax(text):
 	"""
