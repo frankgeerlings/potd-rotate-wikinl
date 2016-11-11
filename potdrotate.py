@@ -116,7 +116,7 @@ def main(*args):
 		descriptionPage.save(editSummary % readableDates(updatedDays), minor=False)
 
 		filePage.text = fileText
-		filePage.save(editSummary, minor=False)
+		filePage.save(editSummary % readableDates(updatedDays), minor=False)
 
 	if today in updatedDays:
 		refreshHomepage(site)
