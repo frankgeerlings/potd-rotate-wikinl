@@ -91,7 +91,7 @@ def main(*args):
 	commons = pywikibot.Site(code="commons", fam="commons")
 	site = pywikibot.Site(code="nl", fam="wikipedia")
 
-	editSummary = 'Robot: Bijwerken afbeelding van de dag (zie [[Gebruiker:Frank Geerlings/Toelichting/Bijwerken afbeelding van de dag|toelichting]])'
+	editSummary = 'Robot: Bijwerken afbeelding van de dag (%s, zie [[Gebruiker:Frank Geerlings/Toelichting/Bijwerken afbeelding van de dag|toelichting]])'
 
 	# Deze maand vanaf morgen
 	today = date.today()
@@ -100,7 +100,7 @@ def main(*args):
 	bron = [a + (None,) if a[2] == None else a + (potdBestandsnaam(commons, a[0]),) for a in metbeschrijvingen if a[2]]
 
 	descriptionPage = pywikibot.Page(site, 'Sjabloon:Hoofdpagina - afbeelding van de dag - onderschrift/data')
-	descriptionText = getD(bron, descriptionPage)
+	descriptionText, updatedDays = getD(bron, descriptionPage)
 	# pywikibot.showDiff(descriptionPage.text, descriptionText)
 
 	descriptionChanged = descriptionPage.text != descriptionText
@@ -114,7 +114,7 @@ def main(*args):
 	if fileChanged or descriptionChanged:
 		# Alleen allebei tegelijk opslaan, als de een dan ook de ander
 		descriptionPage.text = descriptionText
-		descriptionPage.save(editSummary, minor=False)
+		descriptionPage.save(editSummary % readableDates(updatedDays), minor=False)
 
 		filePage.text = fileText
 		filePage.save(editSummary, minor=False)
@@ -156,12 +156,31 @@ def getD(bron, page):
 	wikicode = mwparserfromhell.parse(page.text)
 	switch = wikicode.filter_templates()[0]
 
+	updatedDays = []
+
 	for datum, dag, beschrijving, bestandsnaam in bron:
-		switch.get('<!--%02d-->%d' % (dag, dag)).value = D(datum, beschrijving)
+		existing = switch.get('<!--%02d-->%d' % (dag, dag))
+		newValue = D(datum, beschrijving)
+
+		if existing.value == newValue:
+			continue
+
+		existing.value = newValue
+		updatedDays.append(datum)
 
 	newText = unicode(wikicode)
 
-	return newText
+	return (newText, updatedDays)
+
+def readableDates(data):
+	"""
+	>>> readableDates([date(2016, 11, 11), date(2016, 11, 12), date(2016, 11, 14)])
+	'11 nov-12 nov en 14 nov'
+	"""
+	return lexicalJoin(list(combineRanges(mapFormatterToRangeGroups(dateRangeGroups(data), dateAsText), lambda x, y: "%s-%s" % (x, y))))
+
+def dateAsText(date):
+	return '%d %s' % (date.day, ['jan', 'feb', 'maa', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'][date.month - 1])
 
 def dateRangeGroups(data):
 	"""
@@ -192,6 +211,16 @@ def combineRanges(data, combiner):
 			yield i
 		else:
 			yield combiner(i, j)
+
+def lexicalJoin(data):
+	"""
+	>>> lexicalJoin(['11 Nov-12 Nov', '14 Nov', '16 Nov'])
+	'11 Nov-12 Nov, 14 Nov en 16 Nov'
+	"""
+	if len(data) == 1:
+		return data[0]
+
+	return '%s en %s' % (', '.join(data[0:-1]), data[-1])
 
 def getFiletext(bron, filePage):
 	wikicode = mwparserfromhell.parse(filePage.text)
