@@ -181,11 +181,26 @@ def getD(bron, page):
 def readableDates(data):
 	"""
 	>>> readableDates([date(2016, 11, 11), date(2016, 11, 12), date(2016, 11, 14)])
-	'11 nov-12 nov en 14 nov'
+	'11-12 nov en 14 nov'
 	"""
-	return lexicalJoin(list(combineRanges(mapFormatterToRangeGroups(dateRangeGroups(data), dateAsText), lambda x, y: "%s-%s" % (x, y))))
+	return daterangefix(lexicalJoin(list(combineRanges(mapFormatterToRangeGroups(dateRangeGroups(data), dateAsText), lambda x, y: "%s-%s" % (x, y)))))
+
+def daterangefix(range):
+	"""Group dates by month for non-month-crossing ranges. Works for multiple occurrences in the same string.
+
+	>>> daterangefix('11 nov-12 nov')
+	'11-12 nov'
+
+	>>> daterangefix('30 nov-1 dec')
+	'30 nov-1 dec'
+
+	>>> daterangefix('1 nov-10 nov en 15 nov-16 nov')
+	'1-10 nov en 15-16 nov'
+	"""
+	return re.sub(r'(\d+) (\w+)-(\d+) (\2)', r'\1-\3 \2', range)
 
 def dateAsText(date):
+	"""Convert a date to a (Dutch) string consisting of date and month only (no year, Dutch 3-character month abbreviation)"""
 	return '%d %s' % (date.day, ['jan', 'feb', 'maa', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'][date.month - 1])
 
 def dateRangeGroups(data):
