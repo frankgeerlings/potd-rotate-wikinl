@@ -201,7 +201,7 @@ def daterangefix(range):
 
 def dateAsText(date):
 	"""Convert a date to a (Dutch) string consisting of date and month only (no year, Dutch 3-character month abbreviation)"""
-	return '%d %s' % (date.day, ['jan', 'feb', 'maa', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'][date.month - 1])
+	return '%d %s' % (date.day, ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'][date.month - 1])
 
 def dateRangeGroups(data):
 	"""
