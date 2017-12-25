@@ -152,6 +152,9 @@ def simplifyWikisyntax(text):
 	>>> simplifyWikisyntax(u'Article about [[:nl:–|–]] (em-dash)')
 	u'Article about [[\\xe2\\x80\\x93]] (em-dash)'
 
+	>>> simplifyWikisyntax(u'Panorama van de oude stad en het fort in {{W|Salzburg||nl}} (Oostenrijk), gezien vanop de {{W|M\\xf6nchsberg||nl}}.')
+	u'Panorama van de oude stad en het fort in [[Salzburg]] (Oostenrijk), gezien vanop de [[M\\xf6nchsberg]].'
+
 	>>> simplifyWikisyntax(u'')
 	u''
 	"""
@@ -203,10 +206,10 @@ def replaceCommonsInterwiki(wikitext):
 			lang, art = art.split(':', 1)
 
 		display = art
-		if w.has_param('2'):
+		if w.has_param('2') and len(w.get('2').value) > 0:
 			display = w.get('2').value
 
-		replacement = '[[:%s:%s|%s]]' % (lang,art, display)
+		replacement = u'[[:%s:%s|%s]]' % (lang, art, display)
 
 		wikicode.replace(w, replacement)
 
