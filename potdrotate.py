@@ -3,7 +3,6 @@
 import pywikibot, mwparserfromhell
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
-from pprint import pprint
 from itertools import groupby
 from operator import itemgetter
 import re
@@ -102,13 +101,11 @@ def main(*args):
 
 	descriptionPage = pywikibot.Page(site, 'Sjabloon:Hoofdpagina - afbeelding van de dag - onderschrift/data')
 	descriptionText, updatedDays = getD(bron, descriptionPage)
-	# pywikibot.showDiff(descriptionPage.text, descriptionText)
 
 	descriptionChanged = descriptionPage.text != descriptionText
 
 	filePage = pywikibot.Page(site, 'Sjabloon:Hoofdpagina - afbeelding van de dag/data')
 	fileText = getFiletext(bron, filePage)
-	# pywikibot.showDiff(filePage.text, fileText)
 
 	fileChanged = filePage.text != fileText
 
