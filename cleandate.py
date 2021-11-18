@@ -37,8 +37,8 @@ def dateRangeGroups(data):
 	[(datetime.date(2016, 11, 11), datetime.date(2016, 11, 12)), (datetime.date(2016, 11, 14), datetime.date(2016, 11, 14))]
 	"""
 	ranges = []
-	for k, g in groupby(enumerate(data), lambda (i,x):x+relativedelta(days=-i)):
-		group = map(itemgetter(1), g)
+	for k, g in groupby(enumerate(data), lambda i_x: i_x[1]+relativedelta(days=-i_x[0])):
+		group = list(map(itemgetter(1), g))
 		ranges.append((group[0], group[-1]))
 
 	return ranges

@@ -45,7 +45,7 @@ def potdDescription(text):
 	"""
 	>>> potdDescription('')
 	>>> potdDescription('{{Potd description|1=Een beschrijving.|2=nl|3=2016|4=10|5=07}}')
-	u'Een beschrijving.'
+	'Een beschrijving.'
 	"""
 	if text == '':
 		return None
