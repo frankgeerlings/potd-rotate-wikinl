@@ -143,7 +143,7 @@ def getD(bron, page):
 		existing.value = newValue
 		updatedDays.append(datum)
 
-	newText = unicode(wikicode)
+	newText = wikicode
 
 	return (newText, updatedDays)
 
@@ -155,7 +155,7 @@ def getFiletext(bron, filePage):
 	for datum, dag, beschrijving, bestandsnaam in bron:
 		multiview.get(dag).value = multiviewRegel(dag, bestandsnaam)
 
-	newText = unicode(wikicode)
+	newText = wikicode
 
 	return newText
 
