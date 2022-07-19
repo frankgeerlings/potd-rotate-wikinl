@@ -41,34 +41,34 @@ def simplify_wikisyntax(text):
 	>>> simplify_wikisyntax('[[:Category:Shockwave (Jet Truck)|Shockwave Truck]]')
 	'[[:c:Category:Shockwave (Jet Truck)|Shockwave Truck]]'
 	"""
-	text = replaceCommonsInterwiki(text)
+	text = replace_commons_interwiki(text)
 	text = re.sub(r'\[\[:Category:(.*?)\]\]', "[[:c:Category:\\1]]", text)
 	text = re.sub(r'\[\[:nl:(.*?)\]\]', "[[\\1]]", text)
 	text = re.sub(r'\[\[(.*?)\|\1\]\]', "[[\\1]]", text)
 
 	return text
 
-def replaceCommonsInterwiki(wikitext):
+def replace_commons_interwiki(wikitext):
 	"""
 	We don't do interwiki's to non-wikipedia's, at least have not explicitly tested that.
 	We also don't do the {{Wn}} (etc) shortcuts.
 
 	Full production example:
 
-	>>> replaceCommonsInterwiki('{{w|1=Quito|3=nl}}, de hoofdstad van {{w|1=Ecuador|3=nl}}, gezien vanaf {{w|1=El Panecillo|3=nl}}')
+	>>> replace_commons_interwiki('{{w|1=Quito|3=nl}}, de hoofdstad van {{w|1=Ecuador|3=nl}}, gezien vanaf {{w|1=El Panecillo|3=nl}}')
 	'[[:nl:Quito|Quito]], de hoofdstad van [[:nl:Ecuador|Ecuador]], gezien vanaf [[:nl:El Panecillo|El Panecillo]]'
 
 	The default language in {{W}} is 'en', so we copy that behaviour:
 
-	>>> replaceCommonsInterwiki('{{W|Page name|Display name}}')
+	>>> replace_commons_interwiki('{{W|Page name|Display name}}')
 	'[[:en:Page name|Display name]]'
 
-	>>> replaceCommonsInterwiki('{{W|Page name|Display name|nl}}')
+	>>> replace_commons_interwiki('{{W|Page name|Display name|nl}}')
 	'[[:nl:Page name|Display name]]'
 
 	In-line language prefix supersedes language argument:
 
-	>>> replaceCommonsInterwiki('{{W|nl:Page name|Display name|it}}')
+	>>> replace_commons_interwiki('{{W|nl:Page name|Display name|it}}')
 	'[[:nl:Page name|Display name]]'
 	"""
 

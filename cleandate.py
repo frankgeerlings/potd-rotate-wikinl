@@ -11,7 +11,7 @@ def readable_dates(data):
 	>>> readable_dates([date(2016, 11, 11), date(2016, 11, 12), date(2016, 11, 14)])
 	'11-12 nov en 14 nov'
 	"""
-	return daterangefix(lexicalJoin(list(combineRanges(mapFormatterToRangeGroups(dateRangeGroups(data), dateAsText), lambda x, y: "%s-%s" % (x, y)))))
+	return daterangefix(lexical_join(list(combine_ranges(map_formatter_to_range_groups(date_range_groups(data), date_as_text), lambda x, y: "%s-%s" % (x, y)))))
 
 def daterangefix(range):
 	"""Group dates by month for non-month-crossing ranges. Works for multiple occurrences in the same string.
@@ -27,13 +27,13 @@ def daterangefix(range):
 	"""
 	return re.sub(r'(\d+) (\w+)-(\d+) (\2)', r'\1-\3 \2', range)
 
-def dateAsText(date):
+def date_as_text(date):
 	"""Convert a date to a (Dutch) string consisting of date and month only (no year, Dutch 3-character month abbreviation)"""
 	return '%d %s' % (date.day, ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'][date.month - 1])
 
-def dateRangeGroups(data):
+def date_range_groups(data):
 	"""
-	>>> dateRangeGroups([date(2016, 11, 11), date(2016, 11, 12), date(2016, 11, 14)])
+	>>> date_range_groups([date(2016, 11, 11), date(2016, 11, 12), date(2016, 11, 14)])
 	[(datetime.date(2016, 11, 11), datetime.date(2016, 11, 12)), (datetime.date(2016, 11, 14), datetime.date(2016, 11, 14))]
 	"""
 	ranges = []
@@ -43,16 +43,16 @@ def dateRangeGroups(data):
 
 	return ranges
 
-def mapFormatterToRangeGroups(data, formatter):
+def map_formatter_to_range_groups(data, formatter):
 	"""
-	>>> mapFormatterToRangeGroups([(date(2016, 11, 11), date(2016, 11, 12)), (date(2016, 11, 14), date(2016, 11, 14))], lambda i: i.strftime('%d %b'))
+	>>> map_formatter_to_range_groups([(date(2016, 11, 11), date(2016, 11, 12)), (date(2016, 11, 14), date(2016, 11, 14))], lambda i: i.strftime('%d %b'))
 	[('11 Nov', '12 Nov'), ('14 Nov', '14 Nov')]
 	"""
 	return [(formatter(i), formatter(j)) for (i, j) in data]
 
-def combineRanges(data, combiner):
+def combine_ranges(data, combiner):
 	"""
-	>>> [i for i in combineRanges([('11 Nov', '12 Nov'), ('14 Nov', '14 Nov')], lambda x, y: "%s-%s" % (x, y))]
+	>>> [i for i in combine_ranges([('11 Nov', '12 Nov'), ('14 Nov', '14 Nov')], lambda x, y: "%s-%s" % (x, y))]
 	['11 Nov-12 Nov', '14 Nov']
 	"""
 	for i, j in data:
@@ -61,9 +61,9 @@ def combineRanges(data, combiner):
 		else:
 			yield combiner(i, j)
 
-def lexicalJoin(data):
+def lexical_join(data):
 	"""
-	>>> lexicalJoin(['11 Nov-12 Nov', '14 Nov', '16 Nov'])
+	>>> lexical_join(['11 Nov-12 Nov', '14 Nov', '16 Nov'])
 	'11 Nov-12 Nov, 14 Nov en 16 Nov'
 	"""
 	if len(data) == 1:
