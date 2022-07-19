@@ -35,12 +35,18 @@ def simplify_wikisyntax(text):
 
 	>>> simplify_wikisyntax('')
 	''
-	"""
-	nocommonsinterwiki = replaceCommonsInterwiki(text)
-	nointerwiki = re.sub(r'\[\[:nl:(.*?)\]\]', "[[\\1]]", nocommonsinterwiki)
-	nodoubles = re.sub(r'\[\[(.*?)\|\1\]\]', "[[\\1]]", nointerwiki)
 
-	return nodoubles
+	Categories are assumed to be on commons:
+
+	>>> simplify_wikisyntax('[[:Category:Shockwave (Jet Truck)|Shockwave Truck]]')
+	'[[:c:Category:Shockwave (Jet Truck)|Shockwave Truck]]'
+	"""
+	text = replaceCommonsInterwiki(text)
+	text = re.sub(r'\[\[:Category:(.*?)\]\]', "[[:c:Category:\\1]]", text)
+	text = re.sub(r'\[\[:nl:(.*?)\]\]', "[[\\1]]", text)
+	text = re.sub(r'\[\[(.*?)\|\1\]\]', "[[\\1]]", text)
+
+	return text
 
 def replaceCommonsInterwiki(wikitext):
 	"""
