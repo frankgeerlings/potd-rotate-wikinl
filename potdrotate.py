@@ -66,11 +66,37 @@ def argumentFromTemplate(text, template, argument):
 
 	return sjabloon.get(argument).value
 
+def filename_from_potd_template(text):
+	"""
+	>>> filename_from_potd_template("{{Potd filename|1= Verschiedenfarbige Schwertlilie (Iris versicolor)-20200603-RM-100257.jpg"+chr(10)+"<!--DON'T EDIT BELOW THIS LINE. IT FILLS OUT THE REST FOR YOU.  -->"+chr(10)+"|2=2022|3=08|4=28}}")
+	'Verschiedenfarbige Schwertlilie (Iris versicolor)-20200603-RM-100257.jpg'
+
+	If the template only contains a file name, don't attempt to decode parameters, but
+	only strip superfluous whitespace: (case taken from Template:Potd/2021-06-28)
+
+	>>> filename_from_potd_template("Zürich view Quaibrücke 20200702.jpg" + chr(10))
+	'Zürich view Quaibrücke 20200702.jpg'
+
+	Cyrillic character test:
+
+	>>> filename_from_potd_template("{{Potd filename|Тавче Гравче.jpg|2021|07|28}}")
+	'Тавче Гравче.jpg'
+
+	"""
+
+	# It's a mwparser object, make it pure text so it's accepted by re, among other reasons
+	value = str(text)
+
+	if '{{' in value:
+		value = str(argumentFromTemplate(text, 'Potd filename', '1'))
+
+	return re.sub('<!--.*?-->', '', value).strip()
+
 def potdBestandsnaam(site, day):
 	name = potdBestandsnaamartikelnaam(day)
 	page = pywikibot.Page(site, name)
 
-	return argumentFromTemplate(page.text, 'Potd filename', '1')
+	return filename_from_potd_template(page.text)
 
 def potdArtikelnaam(day):
 	"""
