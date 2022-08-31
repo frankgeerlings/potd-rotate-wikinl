@@ -68,6 +68,10 @@ def argumentFromTemplate(text, template, argument):
 
 def filename_from_potd_template(text):
 	"""
+	Newline in the comment:
+	>>> filename_from_potd_template("{{Potd filename|1= Hohenloher Freilandmuseum - Baugruppe Mühlental - Mahlmühle aus Weipertshofen - Flur - blaue Wand mit Feuerlöscher (2).jpg"+chr(10)+"<!--DON'T EDIT BELOW THIS LINE. IT FILLS OUT THE REST FOR YOU. "+chr(10)+"-->|2=2022|3=08|4=31}}")
+	'Hohenloher Freilandmuseum - Baugruppe Mühlental - Mahlmühle aus Weipertshofen - Flur - blaue Wand mit Feuerlöscher (2).jpg'
+
 	>>> filename_from_potd_template("{{Potd filename|1= Verschiedenfarbige Schwertlilie (Iris versicolor)-20200603-RM-100257.jpg"+chr(10)+"<!--DON'T EDIT BELOW THIS LINE. IT FILLS OUT THE REST FOR YOU.  -->"+chr(10)+"|2=2022|3=08|4=28}}")
 	'Verschiedenfarbige Schwertlilie (Iris versicolor)-20200603-RM-100257.jpg'
 
@@ -90,7 +94,7 @@ def filename_from_potd_template(text):
 	if '{{' in value:
 		value = str(argumentFromTemplate(text, 'Potd filename', '1'))
 
-	return re.sub('<!--.*?-->', '', value).strip()
+	return re.compile('<!--.*?-->', re.DOTALL).sub('', value).strip()
 
 def potdBestandsnaam(site, day):
 	name = potdBestandsnaamartikelnaam(day)
