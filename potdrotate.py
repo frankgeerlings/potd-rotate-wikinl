@@ -8,6 +8,10 @@ from operator import itemgetter
 import re
 import cleandate
 from cleanwikitext import simplify_wikisyntax
+import importlib
+
+settings = importlib.import_module("potd-config")
+config = settings.config[settings.lang]
 
 def dagen(today):
 	"""
@@ -36,7 +40,7 @@ def dagen(today):
 	    yield d1 + timedelta(days=i)
 
 def potdArtikel(site, day):
-	name = potdArtikelnaam(day)
+	name = potdArtikelnaam(day, settings.lang)
 	page = pywikibot.Page(site, name)
 	
 	return potdDescription(page.text)
@@ -102,12 +106,12 @@ def potdBestandsnaam(site, day):
 
 	return filename_from_potd_template(page.text)
 
-def potdArtikelnaam(day):
+def potdArtikelnaam(day, lang):
 	"""
-	>>> potdArtikelnaam(date(2016, 4, 1))
+	>>> potdArtikelnaam(date(2016, 4, 1), 'nl')
 	'Template:Potd/2016-04-01 (nl)'
 	"""
-	return "Template:Potd/%04d-%02d-%02d (nl)" % (day.year, day.month, day.day)
+	return "Template:Potd/%04d-%02d-%02d (%s)" % (day.year, day.month, day.day, lang)
 
 def potdBestandsnaamartikelnaam(day):
 	"""
@@ -120,42 +124,44 @@ def main(*args):
 	local_args = pywikibot.handle_args(args)
 
 	commons = pywikibot.Site(code="commons", fam="commons")
-	site = pywikibot.Site(code="nl", fam="wikipedia")
+	site = pywikibot.Site(code=settings.lang, fam="wikipedia")
 
-	editSummary = 'Robot: Bijwerken afbeelding van de dag (%s, zie [[Gebruiker:Frank Geerlings/Toelichting/Bijwerken afbeelding van de dag|toelichting]])'
 
 	today = date.today()
 
 	metbeschrijvingen = map(lambda x: (x, x.day, potdArtikel(commons, x)), dagen(today))
 	bron = [a + (None,) if a[2] == None else a + (potdBestandsnaam(commons, a[0]),) for a in metbeschrijvingen if a[2]]
 
-	descriptionPage = pywikibot.Page(site, 'Sjabloon:Hoofdpagina - afbeelding van de dag - onderschrift/data')
+	descriptionPage = pywikibot.Page(site, config['description_page'])
 	descriptionText, updatedDays = getD(bron, descriptionPage)
 
 	descriptionChanged = descriptionPage.text != descriptionText
 
-	filePage = pywikibot.Page(site, 'Sjabloon:Hoofdpagina - afbeelding van de dag/data')
+	filePage = pywikibot.Page(site, config['file_page'])
 	fileText = getFiletext(bron, filePage)
 
 	fileChanged = filePage.text != fileText
 
 	if fileChanged or descriptionChanged:
-		# Alleen allebei tegelijk opslaan, als de een dan ook de ander
+		# Only save both at the same time. If we save one, we also save the other.
+
+		edit_summary = config['edit_summary'] % cleandate.readable_dates(updatedDays, settings.lang)
+
 		descriptionPage.text = descriptionText
-		descriptionPage.save(editSummary % cleandate.readable_dates(updatedDays), minor=False)
+		descriptionPage.save(edit_summary, minor=False)
 
 		filePage.text = fileText
-		filePage.save(editSummary % cleandate.readable_dates(updatedDays), minor=False)
+		filePage.save(edit_summary, minor=False)
 
 	if today in updatedDays:
 		refreshHomepage(site)
 
 def refreshHomepage(site):
-	page = pywikibot.Page(site, 'Hoofdpagina')
+	page = pywikibot.Page(site, config['main_page'])
 	site.purgepages([page])
 
 def D(datum, beschrijving):
-	return u"{{Potd description|1=%s|2=nl|3=%04d|4=%02d|5=%02d}}\n  " % (simplify_wikisyntax(beschrijving), datum.year, datum.month, datum.day)
+	return u"{{Potd description|1=%s|2=%s|3=%04d|4=%02d|5=%02d}}\n  " % (simplify_wikisyntax(beschrijving, settings.lang), settings.lang, datum.year, datum.month, datum.day)
 
 def getD(bron, page):
 	wikicode = mwparserfromhell.parse(page.text)
@@ -190,7 +196,7 @@ def getFiletext(bron, filePage):
 	return newText
 
 def multiviewRegel(dag, bestandsnaam):
-	return u"<!--%02d-->[[Image:%s|245x180px|{{Hoofdpagina - afbeelding van de dag - onderschrift}}]]\n  " % (dag, bestandsnaam)
+	return u"<!--%02d-->[[Image:%s|%s|{{%s}}]]\n  " % (dag, bestandsnaam, config['image_dimensions'], config['description_template'])
 
 if __name__ == "__main__":
 	try:

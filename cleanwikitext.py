@@ -3,22 +3,25 @@
 import mwparserfromhell
 import re
 
-def simplify_wikisyntax(text):
+def simplify_wikisyntax(text, lang):
 	"""
-	>>> simplify_wikisyntax('Mid-sentence [[:nl:Link|links]] work')
+	>>> simplify_wikisyntax('Mid-sentence [[:nl:Link|links]] work', 'nl')
 	'Mid-sentence [[Link|links]] work'
 
-	>>> simplify_wikisyntax('[[:nl:Self-contained link|Self-contained link]]')
+	>>> simplify_wikisyntax('[[:nl:Self-contained link|Self-contained link]]', 'nl')
 	'[[Self-contained link]]'
 
-	>>> simplify_wikisyntax('[[Category:Picture of the day]]')
+	>>> simplify_wikisyntax('[[Category:Picture of the day]]', 'XXXX')
 	'[[Category:Picture of the day]]'
 
 	The {{w}} template that is an interwiki shortcut on commons has a totally
-	different application on wikinl, so it gets translated to normal wikilink:
+	different application on nlwiki (and doesn't exist on papwiki), so it gets translated to normal wikilink:
 
-	>>> simplify_wikisyntax('{{w|1=Quito|3=nl}}, de hoofdstad van {{w|1=Ecuador|3=nl}}')
+	>>> simplify_wikisyntax('{{w|1=Quito|3=nl}}, de hoofdstad van {{w|1=Ecuador|3=nl}}', 'nl')
 	'[[Quito]], de hoofdstad van [[Ecuador]]'
+
+	>>> simplify_wikisyntax('{{w|1=Quito|3=nl}}, de hoofdstad van {{w|1=Ecuador|3=pap}}', 'pap')
+	'[[:nl:Quito|Quito]], de hoofdstad van [[Ecuador]]'
 
 	Just so you'll see the next test is correct:
 
@@ -27,23 +30,26 @@ def simplify_wikisyntax(text):
 
 	Unicode characters get replaced properly:
 
-	>>> simplify_wikisyntax('Article about [[:nl:–|–]] (em-dash)')
+	>>> simplify_wikisyntax('Article about [[:nl:–|–]] (em-dash)', 'nl')
 	'Article about [[–]] (em-dash)'
 
-	>>> simplify_wikisyntax('Panorama van de oude stad en het fort in {{W|Salzburg||nl}} (Oostenrijk), gezien vanop de {{W|M\\xf6nchsberg||nl}}.')
+	>>> simplify_wikisyntax('Panorama van de oude stad en het fort in {{W|Salzburg||nl}} (Oostenrijk), gezien vanop de {{W|M\\xf6nchsberg||nl}}.', 'nl')
 	'Panorama van de oude stad en het fort in [[Salzburg]] (Oostenrijk), gezien vanop de [[M\\xf6nchsberg]].'
 
-	>>> simplify_wikisyntax('')
+	>>> simplify_wikisyntax('[[:pap:Iglesa Santa Catalina|Iglesa Santa Catalina]] di estilo neogotico na e pueblo di [[:pap:Mellenbach-Glasbach|Mellenbach-Glasbach]], [[:pap:Turingia|Turingia]], [[:pap:Alemania|Alemania]]', 'pap')
+	'[[Iglesa Santa Catalina]] di estilo neogotico na e pueblo di [[Mellenbach-Glasbach]], [[Turingia]], [[Alemania]]'
+
+	>>> simplify_wikisyntax('', 'nl')
 	''
 
 	Categories are assumed to be on commons:
 
-	>>> simplify_wikisyntax('[[:Category:Shockwave (Jet Truck)|Shockwave Truck]]')
+	>>> simplify_wikisyntax('[[:Category:Shockwave (Jet Truck)|Shockwave Truck]]', 'nl')
 	'[[:c:Category:Shockwave (Jet Truck)|Shockwave Truck]]'
 	"""
 	text = replace_commons_interwiki(text)
 	text = re.sub(r'\[\[:Category:(.*?)\]\]', "[[:c:Category:\\1]]", text)
-	text = re.sub(r'\[\[:nl:(.*?)\]\]', "[[\\1]]", text)
+	text = re.sub(r'\[\[:%s:(.*?)\]\]' % lang, "[[\\1]]", text)
 	text = re.sub(r'\[\[(.*?)\|\1\]\]', "[[\\1]]", text)
 
 	return text

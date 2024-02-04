@@ -6,12 +6,26 @@ from itertools import groupby
 from operator import itemgetter
 import re
 
-def readable_dates(data):
+_localization = {
+	'nl': {
+		'join_word': 'en',
+		'months': ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec']
+	},
+	'pap': {
+		'join_word': 'i',
+		'months': ['yan', 'feb', 'mrt', 'apr', 'mei', 'yün', 'jül', 'oug', 'sèp', 'okt', 'nov', 'des']
+	}
+}
+
+def readable_dates(data, lang):
 	"""
-	>>> readable_dates([date(2016, 11, 11), date(2016, 11, 12), date(2016, 11, 14)])
+	>>> readable_dates([date(2016, 11, 11), date(2016, 11, 12), date(2016, 11, 14)], 'nl')
 	'11-12 nov en 14 nov'
+
+	>>> readable_dates([date(2016, 11, 11), date(2016, 11, 12), date(2016, 12, 14)], 'pap')
+	'11-12 nov i 14 des'
 	"""
-	return daterangefix(lexical_join(list(combine_ranges(map_formatter_to_range_groups(date_range_groups(data), date_as_text), lambda x, y: "%s-%s" % (x, y)))))
+	return daterangefix(lexical_join(list(combine_ranges(map_formatter_to_range_groups(date_range_groups(data), lambda d: date_as_text(d, _localization[lang]['months'])), lambda x, y: "%s-%s" % (x, y))), lang))
 
 def daterangefix(range):
 	"""Group dates by month for non-month-crossing ranges. Works for multiple occurrences in the same string.
@@ -27,9 +41,9 @@ def daterangefix(range):
 	"""
 	return re.sub(r'(\d+) (\w+)-(\d+) (\2)', r'\1-\3 \2', range)
 
-def date_as_text(date):
+def date_as_text(date, months):
 	"""Convert a date to a (Dutch) string consisting of date and month only (no year, Dutch 3-character month abbreviation)"""
-	return '%d %s' % (date.day, ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'][date.month - 1])
+	return '%d %s' % (date.day, months[date.month - 1])
 
 def date_range_groups(data):
 	"""
@@ -61,12 +75,15 @@ def combine_ranges(data, combiner):
 		else:
 			yield combiner(i, j)
 
-def lexical_join(data):
+def lexical_join(data, lang):
 	"""
-	>>> lexical_join(['11 Nov-12 Nov', '14 Nov', '16 Nov'])
+	>>> lexical_join(['11 Nov-12 Nov', '14 Nov', '16 Nov'], 'nl')
 	'11 Nov-12 Nov, 14 Nov en 16 Nov'
+
+	>>> lexical_join(['Kim', 'Khloe', 'Kris'], 'pap')
+	'Kim, Khloe i Kris'
 	"""
 	if len(data) == 1:
 		return data[0]
 
-	return '%s en %s' % (', '.join(data[0:-1]), data[-1])
+	return '%s %s %s' % (', '.join(data[0:-1]), _localization[lang]['join_word'], data[-1])
