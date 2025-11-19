@@ -20,6 +20,11 @@ def simplify_wikisyntax(text):
 	>>> simplify_wikisyntax('{{w|1=Quito|3=nl}}, de hoofdstad van {{w|1=Ecuador|3=nl}}')
 	'[[Quito]], de hoofdstad van [[Ecuador]]'
 
+	The {{wn}} template is similar, but points to nl.wikipedia.org:
+
+	>>> simplify_wikisyntax('Israëlisch {{wn|Floret|floretschermer}} Delila Hatuel')
+	'Israëlisch [[Floret|floretschermer]] Delila Hatuel'
+
 	Just so you'll see the next test is correct:
 
 	>>> '–'
@@ -74,10 +79,10 @@ def replace_commons_interwiki(wikitext):
 
 	wikicode = mwparserfromhell.parse(wikitext)
 	templates = wikicode.filter_templates()
-	ws = [x for x in templates if x.name.matches('w')]
+	ws = [x for x in templates if x.name.matches('w') or x.name.matches('wn')]
 
 	for w in ws:
-		lang = 'en'
+		lang = 'nl' if w.name.matches('wn') else 'en'
 		if w.has_param('3'):
 			lang = w.get('3').value
 
